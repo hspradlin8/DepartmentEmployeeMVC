@@ -108,77 +108,171 @@ namespace DepartmentEmployeeMVC.Controllers
 
             }
         }
-   
 
-
-
-    // GET: Departments/Create
-    public ActionResult Create()
-    {
-        return View();
-    }
-
-    // POST: Departments/Create
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public ActionResult Create(IFormCollection collection)
-    {
-        try
-        {
-            // TODO: Add insert logic here
-
-            return RedirectToAction(nameof(Index));
-        }
-        catch
+        // GET: Departments/Create
+        public ActionResult Create()
         {
             return View();
         }
-    }
 
-    // GET: Departments/Edit/5
-    public ActionResult Edit(int id)
-    {
-        return View();
-    }
-
-    // POST: Departments/Edit/5
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public ActionResult Edit(int id, IFormCollection collection)
-    {
-        try
+        // POST: Departments/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Create(Department department)
         {
-            // TODO: Add update logic here
+            try
+            {
+                using (SqlConnection conn = Connection)
+                {
+                    conn.Open();
+                    using (SqlCommand cmd = conn.CreateCommand())
+                    {
+                        cmd.CommandText = @"INSERT INTO Department 
+                                            (DeptName)
+                                            VALUES (@deptName)";
 
-            return RedirectToAction(nameof(Index));
+                        cmd.Parameters.Add(new SqlParameter("@deptName", department.Name));
+
+
+                        //use an excute non query for inserts bc we are not asking for anything back.
+                        //it is a non query- shows that the rows were affected.
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+
+                return RedirectToAction(nameof(Index));
+            }
+            catch
+            {
+                return View();
+            }
         }
-        catch
+
+        // GET: Departments/Edit/5
+        public ActionResult Edit(int id)
         {
-            return View();
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"SELECT Id, DeptName
+                                        FROM Department
+                                        WHERE Id = @id";
+
+                    cmd.Parameters.Add(new SqlParameter("@id", id));
+
+                    var reader = cmd.ExecuteReader();
+
+                    if (reader.Read())
+                    {
+                        var department = new Department
+                        {
+                            Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                            Name = reader.GetString(reader.GetOrdinal("DeptName"))
+                        };
+                        reader.Close();
+                        return View(department);
+                    }
+                    reader.Close();
+                    return NotFound();
+                }
+
+            }
+        }
+
+        // POST: Departments/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Edit(int id, Department department)
+        {
+            try
+            {
+                using (SqlConnection conn = Connection)
+                {
+                    conn.Open();
+                    using (SqlCommand cmd = conn.CreateCommand())
+                    {
+                        cmd.CommandText = @"UPDATE Department 
+                                            SET 
+                                            DeptName = @deptName
+                                            WHERE Id = @id";
+
+                        cmd.Parameters.Add(new SqlParameter("@deptName", department.Name));
+                        cmd.Parameters.Add(new SqlParameter("@id", id));
+
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+
+                return RedirectToAction(nameof(Index));
+            }
+            catch
+            {
+                return View();
+            }
+        }
+
+        // GET: Departments/Delete/5
+        public ActionResult Delete(int id)
+        {
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"SELECT Id, DeptName
+                                    FROM Department
+                                    WHERE Id = @id";
+
+                    cmd.Parameters.Add(new SqlParameter("@id", id));
+
+                    var reader = cmd.ExecuteReader();
+                    if (reader.Read())
+                    {
+                        var department = new Department
+                        {
+                            Name = reader.GetString(reader.GetOrdinal("DeptName")),
+                            Id = reader.GetInt32(reader.GetOrdinal("Id"))
+                        };
+                        reader.Close();
+                        return View(department);
+                    }
+
+                    return NotFound();
+                }
+
+            }
+        }
+
+        // POST: Departments/Delete/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Delete(int id, Department department)
+        {
+            try
+            {
+                using (SqlConnection conn = Connection)
+                {
+                    conn.Open();
+                    using (SqlCommand cmd = conn.CreateCommand())
+                    {
+                        cmd.CommandText = @"DELETE FROM Department WHERE Id = @id";
+
+                        cmd.Parameters.Add(new SqlParameter("@id", id));
+
+                        cmd.ExecuteNonQuery();
+
+                        return RedirectToAction(nameof(Index));
+
+                    }
+                }
+
+            }
+            catch
+            {
+                return View();
+            }
         }
     }
-
-    // GET: Departments/Delete/5
-    public ActionResult Delete(int id)
-    {
-        return View();
-    }
-
-    // POST: Departments/Delete/5
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public ActionResult Delete(int id, IFormCollection collection)
-    {
-        try
-        {
-            // TODO: Add delete logic here
-
-            return RedirectToAction(nameof(Index));
-        }
-        catch
-        {
-            return View();
-        }
-    }
-}
 }
