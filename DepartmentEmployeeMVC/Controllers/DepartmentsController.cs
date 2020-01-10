@@ -169,7 +169,8 @@ namespace DepartmentEmployeeMVC.Controllers
                         var department = new Department
                         {
                             Id = reader.GetInt32(reader.GetOrdinal("Id")),
-                            Name = reader.GetString(reader.GetOrdinal("DeptName"))
+                            Name = reader.GetString(reader.GetOrdinal("DeptName")),
+                           
                         };
                         reader.Close();
                         return View(department);
@@ -199,7 +200,7 @@ namespace DepartmentEmployeeMVC.Controllers
                                             WHERE Id = @id";
 
                         cmd.Parameters.Add(new SqlParameter("@deptName", department.Name));
-                        cmd.Parameters.Add(new SqlParameter("@id", id));
+                        cmd.Parameters.Add(new SqlParameter("Id", id));
 
                         cmd.ExecuteNonQuery();
                     }
