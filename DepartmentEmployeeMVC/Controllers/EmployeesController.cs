@@ -228,7 +228,7 @@ namespace DepartmentEmployeeMVC.Controllers
             }
             catch (Exception ex)
             {
-                return View();
+                return RedirectToAction(nameof(Edit), new { id = id });
             }
         }
 
